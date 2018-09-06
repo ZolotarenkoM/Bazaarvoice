@@ -9,62 +9,73 @@ s3resource = boto3.resource('s3')
 bucket = s3resource.Bucket(bucket_name)
 s3 = boto3.client('s3')
 
-"""Create S3"""
-def CreateS3(bucket_name,logger):
-    logger.info("Creating new bucket with name: {}".format(bucket_name));
+
+def create_s3(bucket_name, logger):
+    """Create S3"""
+    logger.info("Creating new bucket with name: {}".format(bucket_name))
     s3.create_bucket(Bucket=bucket_name)
 
-"""upload file"""
-def UploadFiletoS3(filename, bucket_name,logger):
-    logger.info("Uploading some data to {} file: {}".format(bucket_name, filename))
+
+def upload_file_to_S3(filename, bucket_name, logger):
+    """upload file"""
+    logger.info("Uploading data to {} file: {}".format(bucket_name, filename))
     s3.upload_file(filename, bucket_name, filename)
 
-"""read file from S3"""
-def ReadFileS3(filename, bucket_name,logger):
+
+def read_file_s3(filename, bucket_name, logger):
+    """read file from S3"""
     s3resource = boto3.resource('s3')
     bucket = s3resource.Bucket(bucket_name)
     obj = bucket.Object(filename)
     logger.info('Object body: {}'.format(obj.get()['Body'].read()))
 
-"""remove S3"""
-def DeleteS3(bucket_name,logger):
+
+def delete_s3(bucket_name, logger):
+    """remove S3"""
     logger.info('Deleting all objects in bucket {}'.format(bucket_name))
     bucket.objects.all().delete()
     logger.info('Deleting the bucket')
     bucket.delete()
     logger.info('The bucket {} has benn deleted'.format(bucket_name))
 
-"""init logging"""
-def init_logging(level,type):
+
+def init_logging(level, type):
+    """init logging"""
     obj = {
         "STD_OUT": sys.stdout
     }
     logger = logging.getLogger("MyLog-S3")
     ch = logging.StreamHandler(obj[str(type).upper()])
     logger.setLevel(logging.getLevelName(level))
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    ch.setFormatter(formatter)
+    format = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    ch.setFormatter(logging.Formatter(format))
     logger.addHandler(ch)
     return logger
 
-"""init parser for yaml file"""
+
 def init_parser():
+    """init parser for yaml file"""
     parser = argparse.ArgumentParser()
-    parser.add_argument('-f', '--file', type=argparse.FileType('r'), help='File to read config-log from ')
+    parser.add_argument('-f', '--file', type=argparse.FileType('r'))
     args = parser.parse_args()
     with args.file as logconfig:
-        cfg = yaml.safe_load(logconfig)
-    return cfg
+        try:
+            parser = yaml.safe_load(logconfig)
+        except yaml.YAMLError as exc:
+            print(exc)
+    return parser
 
-def main():
-    cfg = init_parser()
-    type = cfg["type"]
-    level = str(cfg["level"]).upper()
-    logger = init_logging(level,type)
-    CreateS3(bucket_name,logger)
-    UploadFiletoS3("text", bucket_name,logger)
-    ReadFileS3("text",bucket_name,logger)
-    DeleteS3(bucket_name,logger)
+
+def main(args):
+    parser = init_parser()
+    type = parser["type"]
+    level = str(parser["level"]).upper()
+    logger = init_logging(level, type)
+    create_s3(bucket_name, logger)
+    upload_file_to_S3("text", bucket_name, logger)
+    read_file_s3("text", bucket_name, logger)
+    delete_s3(bucket_name, logger)
+
 
 if __name__ == "__main__":
-    main()
+    main(sys.argv)
