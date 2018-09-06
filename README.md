@@ -13,5 +13,5 @@ This script is:
 Logging is implemented using module "logging". 
 The script accepts an argument file in the yaml format with the level and type of logging
 
-Example for Ubuntu:
-	python3 test_s3.py -f log.yaml
+Example:
+test_s3.py -f log.yaml

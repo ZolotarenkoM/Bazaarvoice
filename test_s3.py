@@ -64,15 +64,15 @@ def init_logging(level_log, type_log):
     """
 
     logger = logging.getLogger("MyLog-S3")
-    ch = init_ch(type_log)
+    handler = init_handler(type_log)
     logger.setLevel(logging.getLevelName(level_log))
     format_log = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    ch.setFormatter(logging.Formatter(format_log))
-    logger.addHandler(ch)
+    handler.setFormatter(logging.Formatter(format_log))
+    logger.addHandler(handler)
     return logger
 
 
-def init_ch(type_log):
+def init_handler(type_log):
     """
     Init stream handler for logging
 
@@ -80,14 +80,14 @@ def init_ch(type_log):
         type_log: this is type of logging
 
     Returns:
-        ch: this is stream (console) handler
+        handler: this is stream (console) handler
     """
 
     list_output = {
         "STD_OUT": sys.stdout
     }
-    ch = logging.StreamHandler(list_output[str(type_log).upper()])
-    return ch
+    handler = logging.StreamHandler(list_output[str(type_log).upper()])
+    return handler
 
 
 def init_parser():
