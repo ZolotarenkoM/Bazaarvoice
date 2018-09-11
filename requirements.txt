@@ -1,0 +1,5 @@
+#### ESSENTIAL LIBRARIES FOR MAIN FUNCTIONALITY ####
+
+# YAML parser and emitter for the Python
+pyyaml
+python-yaml
